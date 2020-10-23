@@ -15,4 +15,4 @@ for folder in folders:
         cent_y = len(img[0])//2
         cent_cut = img[cent_x-128:cent_x+128][cent_y-128:cent_y+128]
 
-        cv2.imwrite(output_directory + '/' + image, img)
+        cv2.imwrite(output_directory + '/' + image, cent_cut)
