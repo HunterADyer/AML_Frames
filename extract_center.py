@@ -6,7 +6,7 @@ folders = sys.argv[1:]
 
 for folder in folders:
     output_directory = folder + '_cent'
-    if not os.path.isdir(folder+'/'):
+    if not os.path.isdir(output_directory+'/'):
         os.mkdir(output_directory)
     for image in os.listdir(folder):
         print(folder + '/' + image)
