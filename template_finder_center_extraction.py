@@ -17,7 +17,8 @@ def extract_face(template_path: str, base_image_path: str, output_dir: str, outp
 
     img_rgb = cv2.imread(base_image_path)
     clean = cv2.imread(base_image_path)
-    print(base_image_path)
+    img_rgb = cv2.copyMakeBorder(img_rgb, 300,300,300,300,cv2.BORDER_CONSTANT, value=(0,0,0))
+    clean = cv2.copyMakeBorder(clean, 300,300,300,300,cv2.BORDER_CONSTANT, value=(0,0,0))
     template = cv2.imread(template_path)
     height, width = template.shape[0], template.shape[1]
 
