@@ -4,6 +4,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import os
 import sys
+import json
 
 template_folder = sys.argv[1] #Folder extracted faces from get_original_face_size.py
 image_folders = sys.argv[2]#Folder with original file names
@@ -29,6 +30,15 @@ def extract_face(template_path: str, base_image_path: str, output_dir: str, outp
     top_left = min_loc  #Change to max_loc for all except for TM_SQDIFF
     bottom_right = (top_left[0] + width, top_left[1] + height)
 
+    match_x, match_y = top_left[0], top_left[1]
+    match_w = bottom_right[0]-top_left[0]
+    match_h = bottom_right[1]-top_left[1]
+
+    #Sanity check for x,y coordinates
+    assert(match_w > 0 and match_h > 0)
+    assert(match_h > match_w)
+
+
     center = (top_left[0] + width//2, top_left[1] + height//2)
 
     top_left_256 = (center[0]-128 + translation_factor_x ,center[1]-128 + translation_factor_y)
@@ -41,17 +51,36 @@ def extract_face(template_path: str, base_image_path: str, output_dir: str, outp
     print(top_left_256[1],top_left_256[1]+256, top_left_256[0],top_left_256[0]+256)
     cv2.imwrite(cropped_dir+'/' + original_name, cropped)
 
+    return match_x, match_y, match_w, match_h
+
 if not os.path.isdir(output_dir):
     os.mkdir(output_dir)
 if not os.path.isdir(cropped_dir):
     os.mkdir(cropped_dir)
 
+template_align = {}
+
 for temp_name in os.listdir(template_folder):
+    if '.png' not in temp_name:
+        continue
     # #temp_name is of form {original_file_name}_0.png
     # suffix_index = temp_name.find('_0.png')
     # original_name = temp_name[:suffix_index] + '.png'
     original_name = temp_name
-    extract_face(template_folder + '/' + temp_name, image_folders + '/' + original_name, output_dir, original_name)
+    x, y, w, h = extract_face(template_folder + '/' + temp_name, image_folders + '/' + original_name, output_dir, original_name)
+
+    template_align[temp_name]={}
+    template_align[temp_name]['x'] = x
+    template_align[temp_name]['y'] = y
+    template_align[temp_name]['w'] = w
+    template_align[temp_name]['h'] = h
+
+
+with open(cropped_dir + '/' + 'template_alignments.json', 'w+') as fp:
+    fp.write(json.dumps(template_align))
+
+
+
 
 
 
